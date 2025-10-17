@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teaching Slides: Animasi Interaktif dengan Scratch</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --primary-color: #16213e;
+            --secondary-color: #0f3460;
+            --accent-color: #e94560;
+            --text-color: #dcdcdc;
+            --scratch-orange: #f9a825;
+            --scratch-blue: #4d97ff;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .logo-kalananti {
+            position: absolute;
+            top: 30px;
+            left: 40px;
+            width: 150px;
+            height: auto;
+            background-color: transparent;
+            padding: 0;
+            box-shadow: none;
+            z-index: 5;
+        }
+
+        #slide-container {
+            width: 90%;
+            max-width: 1000px;
+            height: 90vh; /* Define a clear height relative to the viewport */
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%; /* Make the slide fill the container's height */
+            background: linear-gradient(145deg, var(--primary-color), var(--secondary-color));
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Reverted to center for better vertical alignment */
+            align-items: center;
+            padding: 60px 40px 80px 40px; /* Increased bottom padding for scroll room */
+            box-sizing: border-box;
+            text-align: center;
+            transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            opacity: 0;
+            overflow-y: auto; /* Add scroll for content that overflows */
+            transform: translateX(100%) rotateY(-20deg);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0) rotateY(0);
+            z-index: 1;
+        }
+        
+        .slide.previous {
+            transform: translateX(-100%) rotateY(20deg);
+            opacity: 0;
+        }
+
+        .slide h1, .slide h2 {
+            font-family: 'Press Start 2P', cursive;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+        }
+        
+        .slide h1 {
+            font-size: 2.5rem;
+        }
+
+        .slide h2 {
+            font-size: 1.8rem;
+            color: var(--scratch-orange);
+        }
+        
+        .slide p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            max-width: 80%;
+        }
+
+        .slide p.subtitle {
+            font-size: 1.5rem;
+            color: var(--scratch-orange);
+            margin-top: 0;
+            font-weight: 600;
+        }
+        .slide .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .slide img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            background-color: rgba(255,255,255,0.1);
+            padding: 5px;
+        }
+        
+        .code-block {
+            background-color: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: left;
+            width: fit-content;
+            margin: 15px auto;
+            border-left: 5px solid var(--scratch-blue);
+        }
+        
+        .project-ideas-grid {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .project-ideas-grid li {
+            background-color: var(--secondary-color);
+            padding: 15px;
+            border-radius: 8px;
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .project-ideas li:hover {
+            transform: scale(1.05);
+        }
+        
+        .project-ideas strong {
+            color: var(--scratch-orange);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .project-ideas-grid img {
+            margin-top: 10px;
+            border-radius: 8px;
+            flex-grow: 1;
+            object-fit: cover;
+            min-height: 150px; /* Ensures images have a minimum height */
+        }
+
+        .slide ol.ct-list {
+            font-size: 1rem;
+            text-align: left;
+            max-width: 90%;
+        }
+
+        .slide ol.ct-list li {
+            margin-bottom: 10px;
+        }
+
+        #navigation {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .nav-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 0 10px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        }
+
+        .nav-btn:hover {
+            background-color: white;
+            color: var(--accent-color);
+            transform: translateY(-3px);
+        }
+        
+        .nav-btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .slide-counter {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background-color: rgba(0,0,0,0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 5;
+        }
+
+    </style>
+</head>
+<body>
+    <img src="https://cdn-web-2.ruangguru.com/landing-pages/assets/hs/kalananti%202022/Kalananti%20by%20Ruangguru.png" alt="Logo Kalananti by Ruangguru" class="logo-kalananti">
+
+    <div id="slide-container">
+        <!-- Slide 1: Judul -->
+        <div class="slide active">
+            <span class="slide-counter">1 / 14</span>
+            <h1>Selamat Datang, Ruangguru Squad!</h1>
+            <p class="subtitle">Workshop Coding Seru ala Kalananti</p>
+            <p>Penasaran bagaimana Kalananti by Ruangguru mengajarkan coding dengan cara yang fun dan kreatif untuk anak-anak? Hari ini, kita akan merasakannya langsung! Mari kita rehat sejenak dari rutinitas dan bersenang-senang membuat animasi interaktif pertama kita dengan Scratch.</p>
+            <img src="https://scratch.mit.edu/images/scratch-og.png" alt="Scratch Logo">
+        </div>
+        
+        <!-- Slide 2: Esensi Coding -->
+        <div class="slide">
+            <span class="slide-counter">2 / 14</span>
+            <h2>Apa itu Computational Thinking?</h2>
+            <p>Ini adalah cara kita menyelesaikan masalah seperti seorang programmer, dengan memecahnya menjadi 4 langkah utama:</p>
+            <img src="https://sophosakademi.org/wp-content/uploads/2019/09/hesaplamal%C4%B1_du%CC%88s%CC%A7u%CC%88nme.png" alt="4 Pilar Computational Thinking">
+        </div>
+
+        <!-- Slide 3: CT di Scratch -->
+        <div class="slide">
+            <span class="slide-counter">3 / 14</span>
+            <h2>CT dalam Animasi Sederhana</h2>
+            <p>Bagaimana kita menerapkan ini di Scratch? Mari kita lihat contoh membuat kucing berjalan:</p>
+            <ol class="ct-list">
+                <li><strong>Dekomposisi:</strong> Kita butuh kucing (Sprite), gerakan, dan pemicu (event).</li>
+                <li><strong>Pengenalan Pola:</strong> Gerakannya berulang: maju, ganti kostum, maju, ganti kostum...</li>
+                <li><strong>Abstraksi:</strong> Kita hanya perlu blok `gerak` dan `ganti kostum`, tak perlu pusing soal gambar pixel.</li>
+                <li><strong>Algoritma:</strong> Kita susun bloknya secara berurutan agar kucing berjalan saat bendera hijau diklik.</li>
+            </ol>
+        </div>
+
+        <!-- Slide 4: Antarmuka Scratch -->
+        <div class="slide">
+            <span class="slide-counter">4 / 14</span>
+            <h2>Arena Bermain Kita</h2>
+            <p>Ayo kenalan dengan area kerja di Scratch!</p>
+            <img src="https://i0.wp.com/teachingforward.net/wp-content/uploads/2018/10/interface-overview.png?resize=620%2C379&ssl=1" alt="Antarmuka Scratch dengan Anotasi">
+             <p style="font-size: 1rem; margin-top:10px;"><strong>Panggung:</strong> Tempat animasimu hidup. <strong>Sprite:</strong> Karakter atau objekmu. <strong>Blok Kode:</strong> Perintah untuk Sprite. <strong>Area Skrip:</strong> Tempat menyusun perintah.</p>
+        </div>
+        
+        <!-- Slide 5: Events - Green Flag -->
+        <div class="slide">
+            <span class="slide-counter">5 / 14</span>
+            <h2>Titik Awal: Bendera Hijau</h2>
+            <p>Setiap program butuh pemicu untuk memulai. Di Scratch, pemicu utamanya adalah blok <strong>"ketika bendera hijau diklik"</strong> dari kategori Kejadian (Events).</p>
+            <img src="https://scratch.oneoffcoder.com/_images/00-when-green-flag-clicked.png" alt="Blok Events">
+            <p style="font-size: 1rem; margin-top:15px;">Semua blok di bawahnya akan berjalan saat kamu menekan tombol bendera hijau di atas Panggung.</p>
+        </div>
+
+        <!-- Slide 6: Motion -->
+        <div class="slide">
+            <span class="slide-counter">6 / 14</span>
+            <h2>Ayo Bergerak! (Motion)</h2>
+            <p>Blok <strong>Gerakan (Motion)</strong> berwarna biru tua digunakan untuk mengatur posisi, arah, dan pergerakan Sprite di Panggung.</p>
+            <img src="https://jakemiller.net/wp-content/uploads/2019/10/Scratch-Move-Your-Sprite.gif" alt="Blok Motion">
+            <p style="font-size: 1rem; margin-top:15px;">Coba gunakan blok `gerak 10 langkah` dan `jika di pinggir, pantulkan`.</p>
+        </div>
+
+        <!-- Slide 7: Looks -->
+        <div class="slide">
+            <span class="slide-counter">7 / 14</span>
+            <h2>Ganti Penampilan! (Looks)</h2>
+            <p>Blok <strong>Tampilan (Looks)</strong> berwarna ungu memungkinkan kamu mengubah kostum, menampilkan balon kata, mengubah ukuran, dan memberi efek visual.</p>
+            <img src="https://user-images.githubusercontent.com/30018394/44202373-5f341480-a17e-11e8-9e79-fb0845b92af6.gif" alt="Blok Looks">
+            <p style="font-size: 1rem; margin-top:15px;">Kombinasikan `ganti kostum berikutnya` dengan blok `tunggu` untuk membuat animasi berjalan!</p>
+        </div>
+
+        <!-- Slide 8: Challenge -->
+        <div class="slide">
+            <span class="slide-counter">8 / 14</span>
+            <h2>Challenge: Efek Parallax!</h2>
+            <p>Gunakan blok <strong>Motion</strong> dan <strong>Looks</strong> untuk membuat efek latar belakang bergerak (parallax scrolling). Bisakah kamu membuatnya?</p>
+            <img src="https://www.codewizardshq.com/wp-content/uploads/2025/04/Scrolling-complete-game.gif" alt="Challenge Scrolling Background">
+            <p style="font-size: 1rem; margin-top:15px;"><strong>Tips:</strong> Buat dua Sprite latar belakang dan gerakkan mereka secara terus-menerus.</p>
+        </div>
+        
+        <!-- Slide 9: Menggunakan Control -->
+        <div class="slide">
+             <span class="slide-counter">9 / 14</span>
+            <h2>Atur Sendiri Alurnya! (Control)</h2>
+            <p>Dengan blok <strong>Kontrol</strong>, kamu bisa membuat jeda atau mengulang aksi berkali-kali. Ini penting untuk membuat animasi yang lebih kompleks!</p>
+            <div class="content-grid">
+                 <img src="https://www.stemdetectivelab.com/wp-content/uploads/2019/07/scratch-control-blocks-examples.png" alt="Blok Control">
+                 <div>
+                    <p>Contoh membuat Sprite menari:</p>
+                    <div class="code-block">
+                        <strong>ketika sprite ini diklik</strong><br>
+                        <strong>ulangi 10 kali</strong> { <br>
+                        &nbsp;&nbsp;putar 15 derajat<br>
+                        &nbsp;&nbsp;tunggu 0.2 detik<br>
+                        }
+                    </div>
+                 </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Proyek Mini -->
+        <div class="slide">
+            <span class="slide-counter">10 / 14</span>
+            <h2>Proyek Mini: Namamu Jadi Hidup!</h2>
+            <p><strong>Tantangan:</strong> Buat setiap huruf di namamu menjadi sebuah Sprite. Lalu, program setiap huruf agar beranimasi saat diklik!</p>
+             <img src="https://coderdojo.newrytown.co.uk/wp-content/uploads/2019/02/scratch-animated-name.gif">
+            <p><strong>Tips:</strong> Gunakan blok "ketika sprite ini diklik", lalu tambahkan blok "ubah efek warna" atau "putar".</p>
+        </div>
+
+        <!-- Slide 11: Menyimpan Proyek -->
+        <div class="slide">
+            <span class="slide-counter">11 / 14</span>
+            <h2>MISSION COMPLETE!</h2>
+            <p>Kerja bagus, programmer! Jangan lupa simpan hasil karyamu agar tidak hilang.</p>
+            <img src="https://2018media.idtech.com/2022-05/how-to-share-a-scratch-project.gif?75cce00fda" alt="Cara menyimpan proyek di Scratch">
+            <p>Ingat, membuat animasi adalah salah satu cara paling seru untuk belajar coding. Kamu sudah selangkah lebih dekat menjadi pencipta game!</p>
+        </div>
+
+        <!-- Slide 12: Saran Proyek -->
+        <div class="slide">
+            <span class="slide-counter">12 / 14</span>
+            <h2>Apa Selanjutnya? Ide Proyek Seru!</h2>
+            <p>Ini beberapa ide yang bisa kita buat bersama pengajar:</p>
+            <div class="project-ideas-grid">
+                <ul style="display: contents;"> <!-- Use display: contents to make li a direct child of the grid -->
+                    <li>
+                        <strong>Akuarium Digital:</strong> Buat ikan-ikan yang berenang acak. Saat diklik, ikan akan mengeluarkan gelembung atau berenang lebih cepat.
+                        <img src="https://cdn.pixabay.com/animation/2023/01/30/13/03/13-03-07-328_512.gif" alt="Animasi Ikan Berenang">
+                    </li>
+                    <li>
+                        <strong>Band Sederhana:</strong> Setiap Sprite adalah alat musik. Saat diklik, mainkan suara alat musik tersebut. Ciptakan lagumu sendiri!
+                        <img src="https://blueinnotechnology.com/wp-content/uploads/2022/03/scratch-dancing-party.gif" alt="Animasi Band di Scratch">
+                    </li>
+                     <li>
+                        <strong>Kartu Ucapan Interaktif:</strong> Buat kartu ulang tahun digital. Saat kue atau balon diklik, munculkan animasi atau lagu.
+                        <img src="https://cdn.scratch.mit.edu/scratchr2/static/__5b3e40ec58a840b41702360e9891321b__/images/help/bd-s0-i1.gif" alt="Animasi Kartu Ucapan di Scratch">
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Slide 13: Proyek Lanjutan -->
+        <div class="slide">
+            <span class="slide-counter">13 / 14</span>
+            <h2>Level Up: Proyek Lebih Menantang</h2>
+             <p>Jika kamu sudah siap, coba proyek ini:</p>
+            <div class="project-ideas-grid">
+                <ul style="display: contents;">
+                    <li>
+                        <strong>Game Kejar-kejaran (Chase Game):</strong> Satu Sprite (misal: kucing) mengikuti mouse, dan Sprite lain (tikus) bergerak acak. Dapatkan poin setiap kali kucing berhasil menyentuh tikus.
+                        <img src="https://codingireland.blob.core.windows.net/images/steps%5Cscdiga%20show%20game.gif" alt="Animasi Chase Game di Scratch">
+                    </li>
+                    <li>
+                        <strong>Cerita Interaktif:</strong> Buat cerita di mana pengguna bisa memilih jalan ceritanya. Misal: "Pilih pintu merah atau biru?"
+                        <img src="https://codingireland.blob.core.windows.net/images/steps%5Cjdq832_sa-code-10.gif" alt="Animasi Cerita Interaktif di Scratch">
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 14: Penutup -->
+        <div class="slide">
+            <span class="slide-counter">14 / 14</span>
+            <h2>SEE YOU AT THE NEXT LEVEL!</h2>
+            <p>Kamu sudah menyelesaikan dasar-dasarnya. Teruslah bereksperimen, jangan takut membuat kesalahan, dan yang terpenting, bersenang-senanglah!</p>
+            <p>Sampai jumpa di Hari ke-2!</p>
+        </div>
+
+    </div>
+
+    <div id="navigation">
+        <button id="prevBtn" class="nav-btn">Prev</button>
+        <button id="nextBtn" class="nav-btn">Next</button>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        let currentSlide = 0;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active', 'previous');
+                if (i === index) {
+                    slide.classList.add('active');
+                } else if (i < index) {
+                   slide.classList.add('previous');
+                }
+            });
+            
+            // Update button states
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === slides.length - 1;
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        });
+
+        // Initialize first slide
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
